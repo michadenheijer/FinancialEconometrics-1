@@ -215,9 +215,21 @@ llik_val <- -est$value*n # Deze code komt van week 2
 
 # Echt heel dom maar de formule stond natuurlijk
 # verkeerd in de code van de opdracht
+# Volgens mij zit hier een rekenfout, maar ja kan wel
 k <- 4
 print(paste("AIC", 2*k-2*llik_val)) # AIC
 print(paste("BIC", log(n)*k-2*llik_val)) # BIC
 
 # Het kan ook zijn dat je natuurlijk gewoon de likelyhood wilt printen
 # Die kan je gewoon vinden in deze code natuurlijk
+
+# Hier zijn de ge-estimate waarden:
+omega <- exp(est$par[1])                   #exp() to ensure omega>0
+alpha <- exp(est$par[2])/(1+exp(est$par[2]))   #logistic()=exp()/(exp()) for 0<alpha<1
+beta <- exp(est$par[3])/(1+exp(est$par[3]))   #logistic()=exp()/(exp()) for 0<alpha<1
+gamma <- est$par[4]
+
+print(paste("omega", omega))
+print(paste("alpha", alpha))
+print(paste("beta", beta))
+print(paste("gamma", gamma))
