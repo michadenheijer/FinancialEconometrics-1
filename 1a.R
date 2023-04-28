@@ -2,6 +2,7 @@ rm(list=ls())
 # Jochem installeer eerst deze
 # install.packages("here")
 setwd(here::here())
+library("tseries") # For Jarque Bera
 
 dax = read.table("DAX.txt",header=FALSE)
 dax_log_returns = diff(log(dax[,1]) * 100)
@@ -9,8 +10,8 @@ dax_log_returns = diff(log(dax[,1]) * 100)
 
 # 1
 
-plot(dax[,1], type="l")
-plot(dax_log_returns, type="l")
+plot(dax[,1], type="l", xlab="t", ylab="Dax Index Value")
+plot(dax_log_returns, type="l", xlab="t", ylab="Dax Index Single Day Return (%)")
 dax_log_squared = dax_log_returns**2
 plot(dax_log_squared, type="l")
 plot(acf(dax_log_returns,main="")[1:35])
@@ -44,6 +45,14 @@ llik_fun_GARCH <- function(par,x, plot_filter=FALSE){
   
   if (plot_filter){
     plot(sig2, type="l", ylab="cond. variance", xlab="t")
+    
+    u <- x/sqrt(sig2)
+    
+    # homosked. test
+    plot(acf(u^2, main="")[1:35])
+    
+    # norm. test
+    print(jarque.bera.test(u))
   }
   
   ## Calculate Log Likelihood Values
@@ -56,8 +65,8 @@ llik_fun_GARCH <- function(par,x, plot_filter=FALSE){
   return(llik) # return the average log-likelihood as output
 }
 
-a <- 0.2
-b <- 0.6  
+a <- 0.3
+b <- 0.3  
 
 omega <- var(dax_log_returns)*(1-a-b) 
 par_ini <- c(log(omega),log(a/(1-a)), log(a/(1-a)), log(b/(1-b)), log(b/(1-b)))
@@ -77,6 +86,8 @@ print(paste("alpha_2_hat", alpha_2_hat))
 print(paste("beta_1_hat", beta_1_hat))
 print(paste("beta_2_hat", beta_2_hat))
 
+########### 4
+# Inlcuded in prev.
 
 ########## 5
 # Ja zeer naar taakje weer want nu mag ik die hele functie weer herschrijven
@@ -139,7 +150,7 @@ llik_fun_GARCH_p_q <- function(p, q, par, x, plot_filter=FALSE, print_aic_bic=FA
 
 est_garch <- function(p, q, x){
   a <- 0.2
-  b <- 0.6  
+  b <- 0.2  
   
   par_ini <- rep(0, 1 + p + q)
   par_ini[1] <- var(dax_log_returns)*(1-a-b)
