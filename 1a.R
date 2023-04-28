@@ -70,7 +70,7 @@ b <- 0.3
 
 omega <- var(dax_log_returns)*(1-a-b) 
 par_ini <- c(log(omega),log(a/(1-a)), log(a/(1-a)), log(b/(1-b)), log(b/(1-b)))
-est <- optim(par=par_ini,fn=function(par)-llik_fun_GARCH(par,dax_log_returns), method = "BFGS")
+est <- optim(par=par_ini,fn=function(par)-llik_fun_GARCH(par,dax_log_returns), method = "Nelder-Mead")
 
 omega_hat <- exp(est$par[1])
 alpha_1_hat <- exp(est$par[2])/(1+exp(est$par[2]))
@@ -130,7 +130,7 @@ llik_fun_GARCH_p_q <- function(p, q, par, x, plot_filter=FALSE, print_aic_bic=FA
   llik <- mean(l)  # obtain the average log-likelihood
   
   if (print_aic_bic){
-    llik_val <- -llik*n # Deze code komt van week 2
+    llik_val <- llik*n # Deze code komt van week 2
     
     # Echt heel dom maar de formule stond natuurlijk
     # verkeerd in de code van de opdracht
@@ -157,7 +157,7 @@ est_garch <- function(p, q, x){
   par_ini[2:(2+p-1)] <- log(a/(1-a))
   par_ini[(2+p):(2+p+q-1)] <- log(b/(1-b))
 
-  est <- optim(par=par_ini,fn=function(par)-llik_fun_GARCH_p_q(p, q, par, dax_log_returns), method = "BFGS")
+  est <- optim(par=par_ini,fn=function(par)-llik_fun_GARCH_p_q(p, q, par, dax_log_returns), method = "Nelder-Mead")
   omega_hat <- exp(est$par[1])
   alpha_hat <- exp(est$par[2:(2+p-1)])/(1+exp(est$par[2:(2+p-1)]))
   beta_hat <- exp(est$par[(2+p):(2+p+q-1)])/(1+exp(est$par[(2+p):(2+p+q-1)]))
@@ -181,6 +181,15 @@ for (i in 1:4){
   }
 }
 
+###### 6
+hist(dax_log_returns, breaks=30)
+jarque.bera.test(dax_log_returns) 
+
+### Estimated using normal
+c(mean(dax_log_returns) - sd(dax_log_returns) * 1.96, mean(dax_log_returns) + sd(dax_log_returns) * 1.96)
+
+### From data
+c(quantile(dax_log_returns, 0.025), quantile(dax_log_returns, 0.975))
 
 ###### 7
 llik_fun_GARCH_mod <- function(par,x){
